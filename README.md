@@ -15,7 +15,8 @@ implementation in C#/.NET.
 - Runs quietly in the Windows tray
 - Uses `Ctrl+Space` as the default start/stop hotkey
 - Records WAV audio from the default microphone
-- Sends `multipart/form-data` to a configurable ASR endpoint
+- Sends audio to a configurable ASR endpoint
+- Supports multipart OpenAI-style transcription APIs and OpenRouter's base64 JSON STT API
 - Copies the transcript to the clipboard
 - Attempts to paste into the active field
 - Keeps working even if auto-paste fails, because the text remains copied
@@ -62,18 +63,59 @@ Example:
 {
   "Endpoint": "http://100.106.120.20:8001/v1/audio/transcriptions",
   "Model": "whisper-1",
+  "RequestFormat": "Auto",
   "Hotkey": "Ctrl+Space",
   "PasteAfterTranscription": true,
   "PasteDelayMs": 120,
   "RequestTimeoutMs": 120000,
   "KeepAudioFiles": false,
   "ShowNotifications": true,
-  "ApiKey": ""
+  "ApiKey": "",
+  "OpenRouterReferer": "",
+  "OpenRouterTitle": "Voice On Windows"
 }
 ```
 
 Hotkeys use Windows-style names such as `Ctrl+Space`, `Ctrl+Shift+D`, or
 `Alt+Space`.
+
+### OpenRouter
+
+For OpenRouter STT, use:
+
+```json
+{
+  "Endpoint": "https://openrouter.ai/api/v1/audio/transcriptions",
+  "Model": "qwen/qwen3-asr-flash-2026-02-10",
+  "RequestFormat": "Auto",
+  "ApiKey": "YOUR_OPENROUTER_API_KEY"
+}
+```
+
+`Auto` uses OpenRouter's JSON request format when the endpoint host is
+`openrouter.ai`:
+
+```json
+{
+  "model": "qwen/qwen3-asr-flash-2026-02-10",
+  "input_audio": {
+    "data": "base64-wav-audio",
+    "format": "wav"
+  }
+}
+```
+
+For a non-OpenRouter service that also expects this shape, set:
+
+```json
+"RequestFormat": "OpenRouterJson"
+```
+
+For classic OpenAI-compatible multipart uploads, set:
+
+```json
+"RequestFormat": "MultipartForm"
+```
 
 ## Notes
 
