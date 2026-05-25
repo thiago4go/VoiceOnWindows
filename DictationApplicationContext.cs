@@ -51,6 +51,21 @@ internal sealed class DictationApplicationContext : ApplicationContext
 
     private static Icon LoadIcon()
     {
+        Icon? embeddedIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+        if (embeddedIcon is not null) return embeddedIcon;
+
+        string[] candidates =
+        [
+            Path.Combine(AppContext.BaseDirectory, "assets", "app.ico"),
+            Path.Combine(AppContext.BaseDirectory, "app.ico"),
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "assets", "app.ico")
+        ];
+
+        foreach (string candidate in candidates)
+        {
+            if (File.Exists(candidate)) return new Icon(candidate);
+        }
+
         return SystemIcons.Application;
     }
 
